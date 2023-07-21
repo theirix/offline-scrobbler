@@ -3,7 +3,7 @@ mod lastfmapi;
 mod scrobbler;
 
 use crate::auth::authenticate;
-use crate::scrobbler::scrobble_track;
+use crate::scrobbler::{scrobble_album, scrobble_track};
 use env_logger::Env;
 use log::{error, info};
 use structopt::StructOpt;
@@ -14,6 +14,10 @@ enum CliArgs {
         /// Artist name
         #[structopt(long)]
         artist: String,
+
+        /// Album name
+        #[structopt(long)]
+        album: Option<String>,
 
         /// Track name
         #[structopt(long)]
@@ -43,9 +47,19 @@ fn run(cli_args: CliArgs) -> anyhow::Result<()> {
         } => authenticate(api_key, secret_key),
         CliArgs::Scrobble {
             artist,
+            album,
+            track: _,
+            dryrun,
+        } if album.is_some() => scrobble_album(artist, album.unwrap(), dryrun),
+        CliArgs::Scrobble {
+            artist,
+            album: _,
             track,
             dryrun,
-        } => scrobble_track(artist, track.unwrap(), dryrun),
+        } if track.is_some() => scrobble_track(artist, track.unwrap(), dryrun),
+        CliArgs::Scrobble { .. } => {
+            anyhow::bail!("Wrong arguments");
+        }
     }
 }
 

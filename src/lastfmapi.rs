@@ -1,6 +1,6 @@
 use log::{debug, error, info};
 use reqwest::blocking::Client;
-
+use serde_json::Value;
 use std::collections::HashMap;
 use time::OffsetDateTime;
 use xmltree::Element;
@@ -26,6 +26,18 @@ pub enum ApiError {
     Unscrobbled(String),
 }
 
+#[derive(Debug)]
+pub struct Track {
+    pub title: String,
+    pub duration: i64,
+}
+
+#[derive(Debug)]
+pub struct Album {
+    pub title: String,
+    pub tracks: Vec<Track>,
+}
+
 impl LastfmApi {
     pub fn new(auth_config: AuthConfig) -> Self {
         let client = Client::new();
@@ -49,11 +61,14 @@ impl LastfmApi {
             .map_err(|e| ApiError::Generic(e.to_string()))?;
 
         if !response.status().is_success() {
-            error!("Response: {}", response.text().unwrap_or("".to_string()));
+            error!(
+                "Error response to auth.gettoken: {}",
+                response.text().unwrap_or("".to_string())
+            );
             return Err(ApiError::Generic("Unsuccessfull request".into()));
         }
         let resp: serde_json::Value = response.json().unwrap();
-        info!("Resp {}", resp);
+        debug!("Resp {}", resp);
         let token = resp
             .as_object()
             .and_then(|o| o.get("token"))
@@ -101,10 +116,10 @@ impl LastfmApi {
         let success = response.status().is_success();
         let response_text = response.text().unwrap_or(String::new());
         if !success {
-            error!("Response: {}", response_text);
+            error!("Error response to auth.getSession: {}", response_text);
             return Err(ApiError::Generic("Unsuccessfull request".into()));
         }
-        info!("Response: {}", response_text);
+        debug!("Response: {}", response_text);
         let session_token: String = Element::parse(response_text.as_bytes())
             .map_err(|e| ApiError::Parse(e.to_string()))?
             .get_child("session")
@@ -147,7 +162,7 @@ impl LastfmApi {
         let success = response.status().is_success();
         let response_text = response.text().unwrap_or(String::new());
         if !success {
-            error!("Response: {}", response_text);
+            error!("Error response to track.scrobble: {}", response_text);
             return Err(ApiError::Generic("Unsuccessfull request".into()));
         }
         self.parse_scrobble_response(response_text)
@@ -175,17 +190,6 @@ impl LastfmApi {
             .map_err(|_| ApiError::Parse("integer".into()))?;
         if accepted_count == 1 && ignored_count == 0 {
             // It's ok
-            let elem_message = elem_scrobbles
-                .get_child("scrobble")
-                .ok_or(ApiError::Parse("xml tag scrobble".into()))?
-                .get_child("ignoredMessage")
-                .ok_or(ApiError::Parse("xml tag ignoredMessage".into()))?;
-            let reason_code = elem_message.attributes.get("code").unwrap();
-            let reason_text = elem_message
-                .get_text()
-                .map_or(String::new(), |r| r.into_owned());
-            let reason = format!("{}: {}", reason_code, reason_text);
-            info!("Reason: {}", reason);
             Ok(())
         } else if accepted_count == 0 && ignored_count == 1 {
             // Find a reason
@@ -204,5 +208,79 @@ impl LastfmApi {
             // Invalid structure
             Err(ApiError::Parse("Wrong response structure".into()))
         }
+    }
+
+    pub fn get_album_tracks(&self, artist: String, album: String) -> Result<Album, ApiError> {
+        let url = format!(
+            "https://ws.audioscrobbler.com/2.0/\
+                ?method=album.getInfo&artist={artist}&album={album}&api_key={key}&format=json",
+            artist = urlencoding::encode(&artist),
+            album = urlencoding::encode(&album),
+            key = self.auth_config.api_key
+        );
+        let response = self
+            .client
+            .post(url)
+            .body("")
+            .send()
+            .map_err(|e| ApiError::Generic(e.to_string()))?;
+
+        if !response.status().is_success() {
+            error!("Response: {}", response.text().unwrap_or("".to_string()));
+            return Err(ApiError::Generic("Unsuccessfull request".into()));
+        }
+        let resp: serde_json::Value = response.json().unwrap();
+        debug!("Resp {}", resp);
+
+        let jtracks = resp
+            .as_object()
+            .ok_or(ApiError::Json)?
+            .get("album")
+            .ok_or(ApiError::Json)?
+            .get("tracks")
+            .ok_or(ApiError::Json)?
+            .get("track")
+            .ok_or(ApiError::Json)?
+            .as_array()
+            .ok_or(ApiError::Json)?;
+
+        debug!("Found {} tracks", jtracks.len());
+
+        let tracks: Vec<Track> = jtracks
+            .iter()
+            .map(|jtrack| self.parse_track(jtrack))
+            .collect::<Result<Vec<Track>, ApiError>>()?;
+
+        let title = resp
+            .as_object()
+            .ok_or(ApiError::Json)?
+            .get("album")
+            .ok_or(ApiError::Json)?
+            .get("name")
+            .ok_or(ApiError::Json)?
+            .as_str()
+            .ok_or(ApiError::Json)?
+            .to_string();
+
+        debug!("Corrected album name {}", &title);
+
+        let album_struct = Album { title, tracks };
+
+        Ok(album_struct)
+    }
+
+    fn parse_track(&self, jtrack: &Value) -> anyhow::Result<Track, ApiError> {
+        let title = jtrack
+            .get("name")
+            .ok_or(ApiError::Json)?
+            .as_str()
+            .ok_or(ApiError::Json)?
+            .to_string();
+        let duration = jtrack
+            .get("duration")
+            .ok_or(ApiError::Json)?
+            .as_i64()
+            .ok_or(ApiError::Json)?;
+        Ok(Track { duration, title })
     }
 }
