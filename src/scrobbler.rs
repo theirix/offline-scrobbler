@@ -3,8 +3,8 @@ use crate::lastfmapi::{Album, ApiError, LastfmApi};
 use anyhow::anyhow;
 use log::{info, warn};
 use time::ext::NumericalDuration;
+use time::macros::format_description;
 use time::{Duration, OffsetDateTime};
-
 
 /// Scrobble all tracks in an album with proper timestamps
 fn scrobble_timeline(
@@ -13,7 +13,7 @@ fn scrobble_timeline(
     album: Album,
     dryrun: bool,
 ) -> Result<(), anyhow::Error> {
-    let now = OffsetDateTime::now_utc();
+    let now = OffsetDateTime::now_local()?;
     let album_len: i64 = album.tracks.iter().map(|track| track.duration).sum();
     let track_gap = 5.seconds();
 
@@ -25,11 +25,11 @@ fn scrobble_timeline(
         start_time += Duration::new(track.duration, 0) + track_gap;
         info!(
             "{} track #{} '{}' of artist '{}' at {}",
-            if dryrun { "Scrobbling"} else {"Previewing"},
+            if dryrun { "Scrobbling" } else { "Previewing" },
             idx + 1,
             &track.title,
             &artist,
-            start_time,
+            start_time.format(format_description!("[hour]:[minute]:[second]"))?,
         );
         if !dryrun {
             match api.scrobble(artist.clone(), track.title.clone(), start_time) {
@@ -74,7 +74,7 @@ pub fn scrobble_album(artist: String, album: String, dryrun: bool) -> Result<(),
 pub fn scrobble_track(artist: String, track: String, _dryrun: bool) -> Result<(), anyhow::Error> {
     let auth_config = load_auth_config()?;
     let api = LastfmApi::new(auth_config);
-    let when = OffsetDateTime::now_utc();
+    let when = OffsetDateTime::now_local()?;
     match api.scrobble(artist, track, when) {
         Ok(()) => Ok(()),
         Err(ApiError::Unscrobbled(reason)) => {
