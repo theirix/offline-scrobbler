@@ -270,6 +270,7 @@ impl LastfmApi {
     }
 
     fn parse_track(&self, jtrack: &Value) -> anyhow::Result<Track, ApiError> {
+        let default_duration : i64 = 300;
         let title = jtrack
             .get("name")
             .ok_or(ApiError::Json)?
@@ -280,7 +281,7 @@ impl LastfmApi {
             .get("duration")
             .ok_or(ApiError::Json)?
             .as_i64()
-            .ok_or(ApiError::Json)?;
+            .unwrap_or(default_duration);
         Ok(Track { duration, title })
     }
 }
