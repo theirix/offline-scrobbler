@@ -7,6 +7,7 @@ use crate::scrobbler::{scrobble_album, scrobble_track};
 use env_logger::Env;
 use log::{error, info};
 use structopt::StructOpt;
+use time::Duration;
 
 #[derive(Debug, Clone, StructOpt)]
 enum CliArgs {
@@ -26,6 +27,10 @@ enum CliArgs {
         /// Dry run mode (no writes done)
         #[structopt(short, long)]
         dryrun: bool,
+
+        /// Start time
+        #[structopt(long)]
+        start: Option<String>,
     },
 
     Auth {
@@ -39,6 +44,14 @@ enum CliArgs {
     },
 }
 
+fn start_to_duration(arg: Option<String>) -> Option<Duration> {
+    arg.and_then(|sduration| {
+        humantime::parse_duration(&sduration)
+            .ok()
+            .and_then(|v| Duration::try_from(v).ok())
+    })
+}
+
 fn run(cli_args: CliArgs) -> anyhow::Result<()> {
     match cli_args {
         CliArgs::Auth {
@@ -50,13 +63,19 @@ fn run(cli_args: CliArgs) -> anyhow::Result<()> {
             album,
             track: _,
             dryrun,
-        } if album.is_some() => scrobble_album(artist, album.unwrap(), dryrun),
+            start,
+        } if album.is_some() => {
+            scrobble_album(artist, album.unwrap(), dryrun, start_to_duration(start))
+        }
         CliArgs::Scrobble {
             artist,
             album: _,
             track,
             dryrun,
-        } if track.is_some() => scrobble_track(artist, track.unwrap(), dryrun),
+            start,
+        } if track.is_some() => {
+            scrobble_track(artist, track.unwrap(), dryrun, start_to_duration(start))
+        }
         CliArgs::Scrobble { .. } => {
             anyhow::bail!("Wrong arguments");
         }

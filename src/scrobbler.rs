@@ -1,7 +1,7 @@
 use crate::auth::load_auth_config;
 use crate::lastfmapi::{Album, ApiError, LastfmApi};
 use anyhow::anyhow;
-use log::{info, warn};
+use log::{debug, info, warn};
 use time::ext::NumericalDuration;
 use time::macros::format_description;
 use time::{Duration, OffsetDateTime};
@@ -12,13 +12,14 @@ fn scrobble_timeline(
     artist: &String,
     album: Album,
     dryrun: bool,
+    offset: Duration,
 ) -> Result<(), anyhow::Error> {
     let now = OffsetDateTime::now_local()?;
     let album_len: i64 = album.tracks.iter().map(|track| track.duration).sum();
     let track_gap = 5.seconds();
 
     let mut start_time =
-        now - Duration::new(album_len, 0) - ((album.tracks.len() - 1) as i16) * track_gap;
+        now - Duration::new(album_len, 0) - ((album.tracks.len() - 1) as i16) * track_gap - offset;
     let mut any_unscrobbled = false;
     for idx in 0..album.tracks.len() {
         let track = &album.tracks[idx];
@@ -51,9 +52,18 @@ fn scrobble_timeline(
 }
 
 /// Scrobble a whole album of an artist
-pub fn scrobble_album(artist: String, album: String, dryrun: bool) -> Result<(), anyhow::Error> {
+pub fn scrobble_album(
+    artist: String,
+    album: String,
+    dryrun: bool,
+    start: Option<Duration>,
+) -> Result<(), anyhow::Error> {
     let auth_config = load_auth_config()?;
     let api = LastfmApi::new(auth_config);
+    // When the track scrobbled - subset offset from current time
+    let offset = start.map_or(Duration::ZERO, |v| v);
+    debug!("Scrobble offset {:?}", offset);
+
     match api.get_album_tracks(artist.clone(), album.clone()) {
         Ok(album_info) => {
             if album_info.title != album {
@@ -63,7 +73,7 @@ pub fn scrobble_album(artist: String, album: String, dryrun: bool) -> Result<(),
                 );
             }
             info!("Album name {}", &album_info.title);
-            scrobble_timeline(&api, &artist, album_info, dryrun)?;
+            scrobble_timeline(&api, &artist, album_info, dryrun, offset)?;
             Ok(())
         }
         Err(e) => Err(e.into()),
@@ -71,10 +81,17 @@ pub fn scrobble_album(artist: String, album: String, dryrun: bool) -> Result<(),
 }
 
 /// Scrobble a track of an artist
-pub fn scrobble_track(artist: String, track: String, _dryrun: bool) -> Result<(), anyhow::Error> {
+pub fn scrobble_track(
+    artist: String,
+    track: String,
+    _dryrun: bool,
+    start: Option<Duration>,
+) -> Result<(), anyhow::Error> {
     let auth_config = load_auth_config()?;
     let api = LastfmApi::new(auth_config);
-    let when = OffsetDateTime::now_local()?;
+    // When the track scrobbled - subset offset from current time
+    let offset = start.map_or(Duration::ZERO, |v| v);
+    let when = OffsetDateTime::now_local()? - offset;
     match api.scrobble(artist, track, when) {
         Ok(()) => Ok(()),
         Err(ApiError::Unscrobbled(reason)) => {
