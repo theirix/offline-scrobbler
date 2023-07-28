@@ -73,6 +73,9 @@ pub fn scrobble_album(
                 );
             }
             info!("Album name {}", &album_info.title);
+            if let Some(album_url) = &album_info.url {
+                info!("Album url {}", &album_url);
+            }
             scrobble_timeline(&api, &artist, album_info, dryrun, offset)?;
             Ok(())
         }

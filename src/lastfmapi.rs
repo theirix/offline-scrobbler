@@ -36,6 +36,7 @@ pub struct Track {
 pub struct Album {
     pub title: String,
     pub tracks: Vec<Track>,
+    pub url: Option<String>,
 }
 
 impl LastfmApi {
@@ -264,13 +265,27 @@ impl LastfmApi {
 
         debug!("Corrected album name {}", &title);
 
-        let album_struct = Album { title, tracks };
+        let album_url: Option<String> = resp
+            .as_object()
+            .ok_or(ApiError::Json)?
+            .get("album")
+            .ok_or(ApiError::Json)?
+            .get("url")
+            .ok_or(ApiError::Json)?
+            .as_str()
+            .map(|s| s.to_string());
+
+        let album_struct = Album {
+            title,
+            tracks,
+            url: album_url,
+        };
 
         Ok(album_struct)
     }
 
     fn parse_track(&self, jtrack: &Value) -> anyhow::Result<Track, ApiError> {
-        let default_duration : i64 = 300;
+        let default_duration: i64 = 300;
         let title = jtrack
             .get("name")
             .ok_or(ApiError::Json)?
