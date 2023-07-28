@@ -90,6 +90,7 @@ fn main() -> Result<(), anyhow::Error> {
         } else {
             env_logger::WriteStyle::Never
         })
+        .format_timestamp(None)
         .init();
 
     let cli_args = CliArgs::from_args();
