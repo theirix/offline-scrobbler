@@ -7,13 +7,16 @@ use xmltree::Element;
 
 use crate::auth::AuthConfig;
 
-const AUDIOSCROBBLER_ROOT: &str = "https://ws.audioscrobbler.com/2.0";
+const AUDIOSCROBBLER_HOST: &str = "https://ws.audioscrobbler.com";
 
+/// Last.fm API client
 pub struct LastfmApi {
     auth_config: AuthConfig,
     client: Client,
+    api_host: String,
 }
 
+/// Last.fm API and scrobbling errors
 #[derive(thiserror::Error, Debug)]
 pub enum ApiError {
     #[error("generic: {0}")]
@@ -40,18 +43,19 @@ pub struct Album {
 }
 
 impl LastfmApi {
-    pub fn new(auth_config: AuthConfig) -> Self {
+    pub fn new(auth_config: AuthConfig, api_host: String) -> Self {
         let client = Client::new();
         Self {
             auth_config,
             client,
+            api_host,
         }
     }
 
     pub fn get_request_token(&self) -> Result<String, ApiError> {
         let url = format!(
-            "{api_root}/?method=auth.gettoken&api_key={key}&format=json",
-            api_root = AUDIOSCROBBLER_ROOT,
+            "{api_host}/2.0/?method=auth.gettoken&api_key={key}&format=json",
+            api_host = self.api_host,
             key = self.auth_config.api_key
         );
         let response = self
@@ -107,9 +111,10 @@ impl LastfmApi {
         post_params.insert("api_sig", api_sig);
 
         // Make a request
+        let url = format!("{}/2.0", self.api_host);
         let response = self
             .client
-            .post(AUDIOSCROBBLER_ROOT)
+            .post(url)
             .form(&post_params)
             .send()
             .map_err(|e| ApiError::Generic(e.to_string()))?;
@@ -153,9 +158,10 @@ impl LastfmApi {
         post_params.insert("api_sig", api_sig);
 
         // Make a request
+        let url = format!("{}/2.0", self.api_host);
         let response = self
             .client
-            .post(AUDIOSCROBBLER_ROOT)
+            .post(url)
             .form(&post_params)
             .send()
             .map_err(|e| ApiError::Generic(e.to_string()))?;
@@ -300,3 +306,29 @@ impl LastfmApi {
         Ok(Track { duration, title })
     }
 }
+
+/// Last.fm API client builder
+pub struct LastfmApiBuilder {
+    auth_config: AuthConfig,
+    api_host: String,
+}
+
+#[allow(dead_code)]
+impl LastfmApiBuilder {
+    pub fn new(auth_config: AuthConfig) -> LastfmApiBuilder {
+        LastfmApiBuilder {
+            auth_config,
+            api_host: AUDIOSCROBBLER_HOST.to_string(),
+        }
+    }
+
+    pub fn with_api_host(mut self, api_host: String) -> LastfmApiBuilder {
+        self.api_host = api_host;
+        self
+    }
+
+    pub fn build(self) -> LastfmApi {
+        LastfmApi::new(self.auth_config, self.api_host)
+    }
+}
+

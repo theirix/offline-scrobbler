@@ -1,4 +1,4 @@
-use crate::lastfmapi::LastfmApi;
+use crate::lastfmapi::LastfmApiBuilder;
 use anyhow::Context;
 use directories::ProjectDirs;
 use log::info;
@@ -60,7 +60,7 @@ pub fn authenticate(api_key: String, secret_key: String) -> anyhow::Result<()> {
         secret_key: secret_key.clone(),
         session_key: "".into(),
     };
-    let api = LastfmApi::new(auth_config);
+    let api = LastfmApiBuilder::new(auth_config).build();
 
     let request_token = api.get_request_token()?;
 
