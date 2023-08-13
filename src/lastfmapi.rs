@@ -219,8 +219,9 @@ impl LastfmApi {
 
     pub fn get_album_tracks(&self, artist: String, album: String) -> Result<Album, ApiError> {
         let url = format!(
-            "https://ws.audioscrobbler.com/2.0/\
+            "{api_host}/2.0/\
                 ?method=album.getInfo&artist={artist}&album={album}&api_key={key}&format=json",
+            api_host = self.api_host,
             artist = urlencoding::encode(&artist),
             album = urlencoding::encode(&album),
             key = self.auth_config.api_key
@@ -332,3 +333,90 @@ impl LastfmApiBuilder {
     }
 }
 
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use crate::lastfmapi::AuthConfig;
+    use httpmock::prelude::*;
+    use test_log::test;
+
+    fn mock_client(server: &MockServer) -> LastfmApi {
+        let api_host = "http://".to_owned() + &server.address().to_string();
+        info!("Using mock server address {}", api_host);
+        let auth_config = AuthConfig {
+            api_key: String::new(),
+            secret_key: String::new(),
+            session_key: String::new(),
+        };
+        LastfmApiBuilder::new(auth_config)
+            .with_api_host(api_host)
+            .build()
+    }
+
+    #[test]
+    fn test_request_token() {
+        let server = MockServer::start();
+
+        let mock_gettoken = server.mock(|when, then| {
+            when.method(POST)
+                .path("/2.0/")
+                .query_param("method", "auth.gettoken");
+            then.status(200)
+                .header("content-type", "application/json")
+                .body(r#"{"token": "secrettoken"}"#);
+        });
+
+        let res = mock_client(&server).get_request_token();
+        mock_gettoken.assert();
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    fn test_request_token_fail() {
+        let server = MockServer::start();
+
+        let mock_gettoken = server.mock(|when, then| {
+            when.method(POST)
+                .path("/2.0/")
+                .query_param("method", "auth.gettoken");
+            then.status(400)
+                .header("content-type", "application/json")
+                .body(r#"{}"#);
+        });
+
+        let res = mock_client(&server).get_request_token();
+        mock_gettoken.assert();
+        assert!(res.is_err());
+        assert!(matches!(res.unwrap_err(), ApiError::Generic(_)));
+    }
+
+    #[test]
+    fn test_get_album_tracks() {
+        let server = MockServer::start();
+
+        let response_text = include_str!("data/resp.album.json");
+        let mock_gettoken = server.mock(|when, then| {
+            when.method(POST)
+                .path("/2.0/")
+                .query_param("method", "album.getInfo");
+            then.status(200)
+                .header("content-type", "application/json")
+                .body(response_text);
+        });
+
+        let res = mock_client(&server).get_album_tracks(
+            "Hooverphonic".into(),
+            "A New Stereophonic Sound Spectacular".into(),
+        );
+        mock_gettoken.assert();
+        assert!(res.is_ok());
+        let album = res.unwrap();
+        assert_eq!(album.title, "A New Stereophonic Sound Spectacular");
+        assert_eq!(
+            album.url.unwrap_or("".into()),
+            "https://www.last.fm/music/Hooverphonic/A+New+Stereophonic+Sound+Spectacular"
+        );
+        assert_eq!(album.tracks.len(), 11);
+    }
+}
