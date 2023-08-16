@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lfm status="ok">
+  <scrobbles ignored="0" accepted="1">
+    <scrobble>
+      <track corrected="0">Eden</track>
+      <artist corrected="0">Hooverphonic</artist>
+      <album corrected="0"/>
+      <albumArtist corrected="0"/>
+      <timestamp>1689478983</timestamp>
+      <ignoredMessage code="0"/>
+    </scrobble>
+  </scrobbles>
+</lfm>
+

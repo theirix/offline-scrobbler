@@ -419,4 +419,27 @@ mod tests {
         );
         assert_eq!(album.tracks.len(), 11);
     }
+
+    #[test]
+    fn test_scrobble() {
+        let server = MockServer::start();
+
+        let response_text = include_str!("data/resp.scrobble.json");
+        let mock_gettoken = server.mock(|when, then| {
+            when.method(POST)
+                .path("/2.0")
+                .x_www_form_urlencoded_tuple("method", "track.scrobble");
+            then.status(200)
+                .header("content-type", "application/json")
+                .body(response_text);
+        });
+
+        let res = mock_client(&server).scrobble(
+            "Hooverphonic".into(),
+            "Eden".into(),
+            OffsetDateTime::now_local().unwrap(),
+        );
+        mock_gettoken.assert();
+        assert!(res.is_ok());
+    }
 }

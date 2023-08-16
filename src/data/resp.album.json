@@ -1,0 +1,256 @@
+{
+  "album": {
+    "artist": "Hooverphonic",
+    "image": [
+      {
+        "#text": "https://lastfm.freetls.fastly.net/i/u/34s/a8e6db9877f9438eab4e833e234cf789.png",
+        "size": "small"
+      },
+      {
+        "#text": "https://lastfm.freetls.fastly.net/i/u/64s/a8e6db9877f9438eab4e833e234cf789.png",
+        "size": "medium"
+      },
+      {
+        "#text": "https://lastfm.freetls.fastly.net/i/u/174s/a8e6db9877f9438eab4e833e234cf789.png",
+        "size": "large"
+      },
+      {
+        "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/a8e6db9877f9438eab4e833e234cf789.png",
+        "size": "extralarge"
+      },
+      {
+        "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/a8e6db9877f9438eab4e833e234cf789.png",
+        "size": "mega"
+      },
+      {
+        "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/a8e6db9877f9438eab4e833e234cf789.png",
+        "size": ""
+      }
+    ],
+    "listeners": "184280",
+    "mbid": "4e9ddd61-dc7f-41a2-acb2-a78d91031eb7",
+    "name": "A New Stereophonic Sound Spectacular",
+    "playcount": "2121593",
+    "tags": {
+      "tag": [
+        {
+          "name": "trip-hop",
+          "url": "https://www.last.fm/tag/trip-hop"
+        },
+        {
+          "name": "chillout",
+          "url": "https://www.last.fm/tag/chillout"
+        },
+        {
+          "name": "downtempo",
+          "url": "https://www.last.fm/tag/downtempo"
+        },
+        {
+          "name": "electronic",
+          "url": "https://www.last.fm/tag/electronic"
+        },
+        {
+          "name": "trip hop",
+          "url": "https://www.last.fm/tag/trip+hop"
+        }
+      ]
+    },
+    "tracks": {
+      "track": [
+        {
+          "@attr": {
+            "rank": 1
+          },
+          "artist": {
+            "mbid": "62dc94cc-f611-4345-87cb-b914796a4a45",
+            "name": "Hooverphonic",
+            "url": "https://www.last.fm/music/Hooverphonic"
+          },
+          "duration": 312,
+          "name": "Inhaler",
+          "streamable": {
+            "#text": "0",
+            "fulltrack": "0"
+          },
+          "url": "https://www.last.fm/music/Hooverphonic/A+New+Stereophonic+Sound+Spectacular/Inhaler"
+        },
+        {
+          "@attr": {
+            "rank": 2
+          },
+          "artist": {
+            "mbid": "62dc94cc-f611-4345-87cb-b914796a4a45",
+            "name": "Hooverphonic",
+            "url": "https://www.last.fm/music/Hooverphonic"
+          },
+          "duration": 201,
+          "name": "2 Wicky",
+          "streamable": {
+            "#text": "0",
+            "fulltrack": "0"
+          },
+          "url": "https://www.last.fm/music/Hooverphonic/A+New+Stereophonic+Sound+Spectacular/2+Wicky"
+        },
+        {
+          "@attr": {
+            "rank": 3
+          },
+          "artist": {
+            "mbid": "aa35dd06-a03c-49fb-af6a-1677f63fc15a",
+            "name": "Hoover",
+            "url": "https://www.last.fm/music/Hoover"
+          },
+          "duration": 271,
+          "name": "Wardrope",
+          "streamable": {
+            "#text": "0",
+            "fulltrack": "0"
+          },
+          "url": "https://www.last.fm/music/Hoover/A+New+Stereophonic+Sound+Spectacular/Wardrope"
+        },
+        {
+          "@attr": {
+            "rank": 4
+          },
+          "artist": {
+            "mbid": "aa35dd06-a03c-49fb-af6a-1677f63fc15a",
+            "name": "Hoover",
+            "url": "https://www.last.fm/music/Hoover"
+          },
+          "duration": 264,
+          "name": "Plus Profond",
+          "streamable": {
+            "#text": "0",
+            "fulltrack": "0"
+          },
+          "url": "https://www.last.fm/music/Hoover/A+New+Stereophonic+Sound+Spectacular/Plus+Profond"
+        },
+        {
+          "@attr": {
+            "rank": 5
+          },
+          "artist": {
+            "mbid": "62dc94cc-f611-4345-87cb-b914796a4a45",
+            "name": "Hooverphonic",
+            "url": "https://www.last.fm/music/Hooverphonic"
+          },
+          "duration": 230,
+          "name": "Barabas",
+          "streamable": {
+            "#text": "0",
+            "fulltrack": "0"
+          },
+          "url": "https://www.last.fm/music/Hooverphonic/A+New+Stereophonic+Sound+Spectacular/Barabas"
+        },
+        {
+          "@attr": {
+            "rank": 6
+          },
+          "artist": {
+            "mbid": "aa35dd06-a03c-49fb-af6a-1677f63fc15a",
+            "name": "Hoover",
+            "url": "https://www.last.fm/music/Hoover"
+          },
+          "duration": 232,
+          "name": "Cinderella",
+          "streamable": {
+            "#text": "0",
+            "fulltrack": "0"
+          },
+          "url": "https://www.last.fm/music/Hoover/A+New+Stereophonic+Sound+Spectacular/Cinderella"
+        },
+        {
+          "@attr": {
+            "rank": 7
+          },
+          "artist": {
+            "mbid": "62dc94cc-f611-4345-87cb-b914796a4a45",
+            "name": "Hooverphonic",
+            "url": "https://www.last.fm/music/Hooverphonic"
+          },
+          "duration": 218,
+          "name": "Nr 9",
+          "streamable": {
+            "#text": "0",
+            "fulltrack": "0"
+          },
+          "url": "https://www.last.fm/music/Hooverphonic/A+New+Stereophonic+Sound+Spectacular/Nr+9"
+        },
+        {
+          "@attr": {
+            "rank": 8
+          },
+          "artist": {
+            "mbid": "62dc94cc-f611-4345-87cb-b914796a4a45",
+            "name": "Hooverphonic",
+            "url": "https://www.last.fm/music/Hooverphonic"
+          },
+          "duration": 256,
+          "name": "Sarangi",
+          "streamable": {
+            "#text": "0",
+            "fulltrack": "0"
+          },
+          "url": "https://www.last.fm/music/Hooverphonic/A+New+Stereophonic+Sound+Spectacular/Sarangi"
+        },
+        {
+          "@attr": {
+            "rank": 9
+          },
+          "artist": {
+            "mbid": "aa35dd06-a03c-49fb-af6a-1677f63fc15a",
+            "name": "Hoover",
+            "url": "https://www.last.fm/music/Hoover"
+          },
+          "duration": 251,
+          "name": "Someone",
+          "streamable": {
+            "#text": "0",
+            "fulltrack": "0"
+          },
+          "url": "https://www.last.fm/music/Hoover/A+New+Stereophonic+Sound+Spectacular/Someone"
+        },
+        {
+          "@attr": {
+            "rank": 10
+          },
+          "artist": {
+            "mbid": "aa35dd06-a03c-49fb-af6a-1677f63fc15a",
+            "name": "Hoover",
+            "url": "https://www.last.fm/music/Hoover"
+          },
+          "duration": 234,
+          "name": "Revolver",
+          "streamable": {
+            "#text": "0",
+            "fulltrack": "0"
+          },
+          "url": "https://www.last.fm/music/Hoover/A+New+Stereophonic+Sound+Spectacular/Revolver"
+        },
+        {
+          "@attr": {
+            "rank": 11
+          },
+          "artist": {
+            "mbid": "aa35dd06-a03c-49fb-af6a-1677f63fc15a",
+            "name": "Hoover",
+            "url": "https://www.last.fm/music/Hoover"
+          },
+          "duration": 274,
+          "name": "Innervoice",
+          "streamable": {
+            "#text": "0",
+            "fulltrack": "0"
+          },
+          "url": "https://www.last.fm/music/Hoover/A+New+Stereophonic+Sound+Spectacular/Innervoice"
+        }
+      ]
+    },
+    "url": "https://www.last.fm/music/Hooverphonic/A+New+Stereophonic+Sound+Spectacular",
+    "wiki": {
+      "content": "dummy dummy",
+      "published": "10 Oct 2009, 03:17",
+      "summary": "dummy dummy"
+    }
+  }
+}
