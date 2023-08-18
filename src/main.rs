@@ -1,6 +1,7 @@
 mod auth;
 mod lastfmapi;
 mod scrobbler;
+mod utils;
 
 use crate::auth::authenticate;
 use crate::scrobbler::{scrobble_album, scrobble_track};

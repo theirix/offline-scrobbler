@@ -1,10 +1,11 @@
 use crate::auth::load_auth_config;
 use crate::lastfmapi::{Album, ApiError, LastfmApi, LastfmApiBuilder};
+use crate::utils::now_local;
 use anyhow::anyhow;
 use log::{debug, info, warn};
 use time::ext::NumericalDuration;
 use time::macros::format_description;
-use time::{Duration, OffsetDateTime};
+use time::Duration;
 
 /// Scrobble all tracks in an album with proper timestamps
 fn scrobble_timeline(
@@ -14,7 +15,7 @@ fn scrobble_timeline(
     dryrun: bool,
     offset: Duration,
 ) -> Result<(), anyhow::Error> {
-    let now = OffsetDateTime::now_local()?;
+    let now = now_local();
     let album_len: i64 = album.tracks.iter().map(|track| track.duration).sum();
     let track_gap = 5.seconds();
 
@@ -94,7 +95,7 @@ pub fn scrobble_track(
     let api = LastfmApiBuilder::new(auth_config).build();
     // When the track scrobbled - subset offset from current time
     let offset = start.map_or(Duration::ZERO, |v| v);
-    let when = OffsetDateTime::now_local()? - offset;
+    let when = now_local() - offset;
     match api.scrobble(artist, track, when) {
         Ok(()) => Ok(()),
         Err(ApiError::Unscrobbled(reason)) => {

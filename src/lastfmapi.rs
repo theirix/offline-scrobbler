@@ -338,6 +338,7 @@ mod tests {
 
     use super::*;
     use crate::lastfmapi::AuthConfig;
+    use crate::utils::now_local;
     use httpmock::prelude::*;
     use test_log::test;
 
@@ -434,11 +435,7 @@ mod tests {
                 .body(response_text);
         });
 
-        let res = mock_client(&server).scrobble(
-            "Hooverphonic".into(),
-            "Eden".into(),
-            OffsetDateTime::now_local().unwrap(),
-        );
+        let res = mock_client(&server).scrobble("Hooverphonic".into(), "Eden".into(), now_local());
         mock_gettoken.assert();
         assert!(res.is_ok());
     }
