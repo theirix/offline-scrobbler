@@ -240,11 +240,17 @@ impl LastfmApi {
         let resp: serde_json::Value = response.json().unwrap();
         debug!("Resp {}", resp);
 
-        let jtracks = resp
+        let jalbum = resp
             .as_object()
             .ok_or(ApiError::Json)?
             .get("album")
-            .ok_or(ApiError::Json)?
+            .ok_or(ApiError::Json)?;
+
+        if jalbum.get("tracks").is_none() {
+            return Err(ApiError::Unscrobbled("Empty album".into()));
+        }
+
+        let jtracks = jalbum
             .get("tracks")
             .ok_or(ApiError::Json)?
             .get("track")
