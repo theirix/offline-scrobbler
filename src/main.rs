@@ -5,6 +5,7 @@ mod utils;
 
 use crate::auth::authenticate;
 use crate::scrobbler::{scrobble_album, scrobble_track};
+use anyhow::Context;
 use env_logger::Env;
 use log::{error, info};
 use structopt::StructOpt;
@@ -45,12 +46,16 @@ enum CliArgs {
     },
 }
 
-fn start_to_duration(arg: Option<String>) -> Option<Duration> {
-    arg.and_then(|sduration| {
-        humantime::parse_duration(&sduration)
-            .ok()
-            .and_then(|v| Duration::try_from(v).ok())
-    })
+fn start_to_duration(arg: Option<String>) -> anyhow::Result<Option<Duration>> {
+    let opt_duration = match arg {
+        Some(sduration) => {
+            let u = humantime::parse_duration(&sduration).context("Parse string start time")?;
+            let duration: Duration = Duration::try_from(u)?;
+            Some(duration)
+        }
+        None => None,
+    };
+    Ok(opt_duration)
 }
 
 fn run(cli_args: CliArgs) -> anyhow::Result<()> {
@@ -66,7 +71,7 @@ fn run(cli_args: CliArgs) -> anyhow::Result<()> {
             dryrun,
             start,
         } if album.is_some() => {
-            scrobble_album(artist, album.unwrap(), dryrun, start_to_duration(start))
+            scrobble_album(artist, album.unwrap(), dryrun, start_to_duration(start)?)
         }
         CliArgs::Scrobble {
             artist,
@@ -75,7 +80,7 @@ fn run(cli_args: CliArgs) -> anyhow::Result<()> {
             dryrun,
             start,
         } if track.is_some() => {
-            scrobble_track(artist, track.unwrap(), dryrun, start_to_duration(start))
+            scrobble_track(artist, track.unwrap(), dryrun, start_to_duration(start)?)
         }
         CliArgs::Scrobble { .. } => {
             anyhow::bail!("Wrong arguments");
@@ -105,5 +110,20 @@ fn main() -> Result<(), anyhow::Error> {
             error!("Error: {}", err);
             Err(err)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use test_log::test;
+
+    #[test]
+    fn test_duration() {
+        assert!(start_to_duration(Some("1h".to_string())).is_ok());
+        assert!(start_to_duration(Some("1h".to_string())).unwrap().is_some());
+        assert!(start_to_duration(Some("30minutes".to_string())).is_ok());
+        assert!(start_to_duration(Some("-1h".to_string())).is_err());
     }
 }
