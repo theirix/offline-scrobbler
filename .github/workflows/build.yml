@@ -87,6 +87,9 @@ jobs:
           toolchain: stable
           targets: x86_64-unknown-linux-musl
 
+      - name: Install dependencies for musl and OpenSSL build
+        run: sudo apt-get install musl-tools musl-dev perl make
+
       - name: Build artifact
         run: cargo build --release --target=x86_64-unknown-linux-musl
 
