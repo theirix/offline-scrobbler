@@ -23,6 +23,10 @@ toml = "0.7.6"
 urlencoding = "2.1.2"
 xmltree = "0.10.3"
 
+[target.'cfg(all(unix, target_env = "musl"))'.dependencies]
+# Build vendored openssl on musl
+openssl = { version = "0.10", features = ["vendored"] }
+
 [dev-dependencies]
 httpmock = { version = "0.6.8", features = ["env_logger"], default-features = false }
 test-log = "0.2.12"
