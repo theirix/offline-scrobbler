@@ -75,7 +75,7 @@ jobs:
           args: -- -D warnings
 
   musl:
-    name: Build
+    name: Build musl
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -87,9 +87,6 @@ jobs:
           toolchain: stable
           targets: x86_64-unknown-linux-musl
 
-      - name: Install cross
-        run: cargo install cross
-
       - name: Build artifact
-        run: cross build --release --target=x86_64-unknown-linux-musl
+        run: cargo build --release --target=x86_64-unknown-linux-musl
 
