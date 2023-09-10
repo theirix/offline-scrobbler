@@ -27,7 +27,7 @@ fn scrobble_timeline(
         start_time += Duration::new(track.duration, 0) + track_gap;
         info!(
             "{} track #{} '{}' of artist '{}' at {}",
-            if dryrun { "Scrobbling" } else { "Previewing" },
+            if dryrun { "Previewing" } else { "Scrobbling" },
             idx + 1,
             &track.title,
             &artist,
