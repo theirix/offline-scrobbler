@@ -20,7 +20,8 @@ structopt = { version = "0.3.26", features = ["color"] }
 thiserror = "1.0.43"
 time = { version = "0.3.23", features = ["macros", "formatting", "local-offset"] }
 toml = "0.7.6"
-urlencoding = "2.1.2"
+url = "2.4.1"
+urlencoding = "2.1.3"
 xmltree = "0.10.3"
 
 [target.'cfg(all(unix, target_env = "musl"))'.dependencies]

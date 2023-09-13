@@ -4,7 +4,7 @@ mod scrobbler;
 mod utils;
 
 use crate::auth::authenticate;
-use crate::scrobbler::{scrobble_album, scrobble_track};
+use crate::scrobbler::{scrobble_album, scrobble_track, scrobble_url};
 use anyhow::Context;
 use env_logger::Env;
 use log::{error, info};
@@ -25,6 +25,20 @@ enum CliArgs {
         /// Track name
         #[structopt(long)]
         track: Option<String>,
+
+        /// Dry run mode (no writes done)
+        #[structopt(short, long)]
+        dryrun: bool,
+
+        /// Start time
+        #[structopt(long)]
+        start: Option<String>,
+    },
+
+    ScrobbleUrl {
+        /// Last.fm album page URL
+        #[structopt(long)]
+        url: String,
 
         /// Dry run mode (no writes done)
         #[structopt(short, long)]
@@ -84,6 +98,9 @@ fn run(cli_args: CliArgs) -> anyhow::Result<()> {
         }
         CliArgs::Scrobble { .. } => {
             anyhow::bail!("Wrong arguments");
+        }
+        CliArgs::ScrobbleUrl { url, dryrun, start } => {
+            scrobble_url(url, dryrun, start_to_duration(start)?)
         }
     }
 }

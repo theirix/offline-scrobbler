@@ -1,11 +1,12 @@
 use crate::auth::load_auth_config;
 use crate::lastfmapi::{Album, ApiError, LastfmApi, LastfmApiBuilder};
 use crate::utils::now_local;
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use log::{debug, info, warn};
 use time::ext::NumericalDuration;
 use time::macros::format_description;
 use time::Duration;
+use url::Url;
 
 /// Scrobble all tracks in an album with proper timestamps
 fn scrobble_timeline(
@@ -104,4 +105,34 @@ pub fn scrobble_track(
         }
         Err(e) => Err(e.into()),
     }
+}
+
+/// Scrobble a whole album identified by Last.fm webpage URL
+pub fn scrobble_url(
+    url: String,
+    dryrun: bool,
+    start: Option<Duration>,
+) -> Result<(), anyhow::Error> {
+    let expected_format = "https://www.last.fm/music/Artist/Album+Name";
+
+    let parsed_url = Url::parse(&url)?;
+    debug!("Parsed url to: {:?}", &parsed_url);
+
+    let path = &parsed_url
+        .path_segments()
+        .context("Cannot parse path")?
+        .collect::<Vec<&str>>();
+    if !(parsed_url.host_str() == Some("last.fm") || parsed_url.host_str() == Some("www.last.fm")) {
+        anyhow::bail!("URL is not from last.fm");
+    }
+    if path.len() < 3 || path[0] != "music" {
+        anyhow::bail!("URL must be in format {}", expected_format);
+    }
+    // Additionally replace plus (not %20) with space
+    let artist = urlencoding::decode(path[1])?.replace('+', " ");
+    let album = urlencoding::decode(path[2])?.replace('+', " ");
+
+    info!("Extracted artist {} and album {}", &artist, &album);
+
+    scrobble_album(artist, album, dryrun, start)
 }
