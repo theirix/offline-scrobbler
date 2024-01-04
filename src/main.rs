@@ -6,56 +6,59 @@ mod utils;
 use crate::auth::authenticate;
 use crate::scrobbler::{scrobble_album, scrobble_track, scrobble_url};
 use anyhow::Context;
+use clap::Parser;
 use env_logger::Env;
 use log::{error, info};
-use structopt::StructOpt;
 use time::Duration;
 
-#[derive(Debug, Clone, StructOpt)]
+#[derive(Debug, Clone, Parser)]
 enum CliArgs {
+    #[command(about = "Scrobble album of artist or track of artist to Last.fm")]
     Scrobble {
         /// Artist name
-        #[structopt(long)]
+        #[arg(long)]
         artist: String,
 
         /// Album name
-        #[structopt(long)]
+        #[arg(long)]
         album: Option<String>,
 
         /// Track name
-        #[structopt(long)]
+        #[arg(long)]
         track: Option<String>,
 
         /// Dry run mode (no writes done)
-        #[structopt(short, long)]
+        #[arg(short, long)]
         dryrun: bool,
 
         /// Start time
-        #[structopt(long)]
+        #[arg(long)]
         start: Option<String>,
     },
 
+    #[command(about = "Scrobble album from given URL to Last.fm")]
     ScrobbleUrl {
         /// Last.fm album page URL
-        #[structopt(long)]
+        #[arg(long)]
         url: String,
 
         /// Dry run mode (no writes done)
-        #[structopt(short, long)]
+        #[arg(short, long)]
         dryrun: bool,
 
         /// Start time
-        #[structopt(long)]
+        #[arg(long)]
         start: Option<String>,
     },
 
+    #[command(about = "Authenticate with Last.fm desktop API")]
     Auth {
         /// API key
-        #[structopt(long)]
+        #[arg(long)]
         api_key: String,
 
         /// Secret key
-        #[structopt(long)]
+        #[arg(long)]
         secret_key: String,
     },
 }
@@ -116,7 +119,7 @@ fn main() -> Result<(), anyhow::Error> {
         .format_timestamp(None)
         .init();
 
-    let cli_args = CliArgs::from_args();
+    let cli_args = CliArgs::parse();
     let result = run(cli_args);
     match result {
         Ok(_) => {
