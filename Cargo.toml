@@ -1,5 +1,5 @@
 [package]
-name = "offline-scrobbler"
+name = "offline_scrobbler"
 version = "0.1.0"
 edition = "2021"
 
@@ -31,3 +31,7 @@ openssl = { version = "0.10", features = ["vendored"] }
 [dev-dependencies]
 httpmock = { version = "0.6.8", features = ["env_logger"], default-features = false }
 test-log = "0.2.12"
+
+[[bin]]
+name = "offline-scrobbler"
+path = "src/main.rs"
