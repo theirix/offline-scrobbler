@@ -73,8 +73,6 @@ jobs:
   publish:
     name: Publish to crates.io
     runs-on: ubuntu-latest
-    # Disable publishing
-    if: ${{ false }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
