@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2024-01-07
+### Added
+- Clap support
+- Add documentation
+- Scrobble by album URL
+- Publish to crates
+
 ## [0.1.2] - 2023-09-07
 ### Added
 - Use changelog for GitHub release
