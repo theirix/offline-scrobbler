@@ -1,7 +1,11 @@
 [package]
 name = "offline_scrobbler"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
+license = "BSD-3-Clause"
+description = "An utility to scrobble music to Last.fm without playing it online"
+homepage = "https://github.com/theirix/offline-scrobbler"
+repository = "https://github.com/theirix/offline-scrobbler"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
