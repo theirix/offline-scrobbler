@@ -110,7 +110,7 @@ fn run(cli_args: CliArgs) -> anyhow::Result<()> {
 
 /// Entry point
 fn main() -> Result<(), anyhow::Error> {
-    env_logger::Builder::from_env(Env::default().default_filter_or("debug"))
+    env_logger::Builder::from_env(Env::default().default_filter_or("info"))
         .write_style(if atty::is(atty::Stream::Stdout) {
             env_logger::WriteStyle::Auto
         } else {
