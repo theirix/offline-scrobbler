@@ -6,6 +6,7 @@ mod utils;
 use crate::auth::authenticate;
 use crate::scrobbler::{scrobble_album, scrobble_track, scrobble_url};
 use anyhow::Context;
+use arboard::Clipboard;
 use clap::Parser;
 use env_logger::Env;
 use log::{error, info};
@@ -38,7 +39,7 @@ enum CliArgs {
 
     #[command(about = "Scrobble album from given URL to Last.fm")]
     ScrobbleUrl {
-        /// Last.fm album page URL
+        /// Last.fm album page URL, or '-' to use URL from the clipboard
         #[arg(long)]
         url: String,
 
@@ -75,6 +76,18 @@ fn start_to_duration(arg: Option<String>) -> anyhow::Result<Option<Duration>> {
     Ok(opt_duration)
 }
 
+/// Provide URL from argument or from clipboard
+fn effective_url(raw_url: String) -> anyhow::Result<String> {
+    if raw_url == "-" {
+        let mut clipboard = Clipboard::new()?;
+        let contents = clipboard.get_text()?;
+        info!("Read URL from clipboard: {}", &contents);
+        Ok(contents)
+    } else {
+        Ok(raw_url)
+    }
+}
+
 fn run(cli_args: CliArgs) -> anyhow::Result<()> {
     match cli_args {
         CliArgs::Auth {
@@ -103,7 +116,7 @@ fn run(cli_args: CliArgs) -> anyhow::Result<()> {
             anyhow::bail!("Wrong arguments");
         }
         CliArgs::ScrobbleUrl { url, dryrun, start } => {
-            scrobble_url(url, dryrun, start_to_duration(start)?)
+            scrobble_url(effective_url(url)?, dryrun, start_to_duration(start)?)
         }
     }
 }

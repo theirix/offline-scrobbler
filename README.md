@@ -43,6 +43,11 @@ To scrobble using a URL with the specific Last.fm album, call
 offline-scrobbler scrobble-url --url "https://www.last.fm/music/Hooverphonic/Blue+Wonder+Power+Milk"
 ```
 
+If URL is in the clipboard, just call
+```sh
+offline-scrobbler scrobble-url --url -
+```
+
 To scrobble a single track of artist (no album), call
 ```sh
 offline-scrobbler scrobble --artist=Hooverphonic --track=Eden
