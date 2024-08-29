@@ -1,6 +1,6 @@
 [package]
 name = "offline_scrobbler"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 license = "BSD-3-Clause"
 description = "An utility to scrobble music to Last.fm without playing it online"
