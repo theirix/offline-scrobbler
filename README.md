@@ -7,7 +7,7 @@
 
 ## Installation
 
-    cargo build --release
+    cargo install offline-scrobbler
 
 ## Usage
 
@@ -57,6 +57,13 @@ The valuable feature of scrobble is the ability to scrobble to the past.
 For example, you have listened to a track one hour ago.  Then you can specify additional argument `--start=1h` or ``--start=60m`` or even `--start="1h 15min"`! Formats are described [here](https://docs.rs/humantime/latest/humantime/fn.parse_duration.html). It is a scrobbler.
 
 For simplicity, when you invoke scrobbling of an album, the scrobbler analyses all tracks' duration in the album and scrobbles them sequentially until the current moment. Therefore, when you launch the scrobbler, the album will be scrobbled as if you just finished listening to it for an hour.
+
+## Development
+
+    cargo build --release
+
+Publishing is done by GitHub actions for Linux musl, macOS on Intel and Apple Silicon.
+
 
 ## Portability
 
