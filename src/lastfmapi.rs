@@ -431,7 +431,7 @@ mod tests {
     fn test_scrobble() {
         let server = MockServer::start();
 
-        let response_text = include_str!("data/resp.scrobble.json");
+        let response_text = include_str!("data/resp.scrobble.xml");
         let mock_gettoken = server.mock(|when, then| {
             when.method(POST)
                 .path("/2.0")
