@@ -1,8 +1,11 @@
 use log::{debug, error, info};
 use reqwest::blocking::Client;
+use reqwest::blocking::ClientBuilder;
+use reqwest::retry;
 use serde_json::Value;
 use std::collections::HashMap;
 use time::OffsetDateTime;
+use url::Url;
 use xmltree::Element;
 
 use crate::auth::AuthConfig;
@@ -44,8 +47,17 @@ pub struct Album {
 
 impl LastfmApi {
     pub fn new(auth_config: AuthConfig, api_host: String) -> Result<Self, ApiError> {
-        let client = Client::new();
-        Self {
+        // Retry failed requests
+        let host = Url::parse(AUDIOSCROBBLER_HOST)
+            .map_err(|e| ApiError::Generic(e.to_string()))?
+            .host()
+            .ok_or(ApiError::Generic("No host found".to_string()))?
+            .to_string();
+        let client = ClientBuilder::new()
+            .retry(retry::for_host(host).max_retries_per_request(5))
+            .build()
+            .map_err(|e| ApiError::Generic(e.to_string()))?;
+        Ok(Self {
             auth_config,
             client,
             api_host,
