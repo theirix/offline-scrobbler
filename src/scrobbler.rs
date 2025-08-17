@@ -47,7 +47,7 @@ fn scrobble_timeline(
     }
 
     if any_unscrobbled {
-        Err(anyhow!(format!("Not all tracks scrobbled")))
+        Err(anyhow!("Not all tracks scrobbled"))
     } else {
         Ok(())
     }
