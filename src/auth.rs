@@ -60,7 +60,7 @@ pub fn authenticate(api_key: String, secret_key: String) -> anyhow::Result<()> {
         secret_key: secret_key.clone(),
         session_key: "".into(),
     };
-    let api = LastfmApiBuilder::new(auth_config).build();
+    let api = LastfmApiBuilder::new(auth_config).build()?;
 
     let request_token = api.get_request_token()?;
 

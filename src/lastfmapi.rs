@@ -43,13 +43,13 @@ pub struct Album {
 }
 
 impl LastfmApi {
-    pub fn new(auth_config: AuthConfig, api_host: String) -> Self {
+    pub fn new(auth_config: AuthConfig, api_host: String) -> Result<Self, ApiError> {
         let client = Client::new();
         Self {
             auth_config,
             client,
             api_host,
-        }
+        })
     }
 
     pub fn get_request_token(&self) -> Result<String, ApiError> {
@@ -175,7 +175,7 @@ impl LastfmApi {
         self.parse_scrobble_response(response_text)
     }
 
-    fn parse_scrobble_response(&self, response_text: String) -> anyhow::Result<(), ApiError> {
+    fn parse_scrobble_response(&self, response_text: String) -> Result<(), ApiError> {
         debug!("Scrobble response: {}", response_text);
         let elem_root =
             Element::parse(response_text.as_bytes()).map_err(|e| ApiError::Parse(e.to_string()))?;
@@ -334,14 +334,13 @@ impl LastfmApiBuilder {
         self
     }
 
-    pub fn build(self) -> LastfmApi {
+    pub fn build(self) -> Result<LastfmApi, ApiError> {
         LastfmApi::new(self.auth_config, self.api_host)
     }
 }
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
     use crate::lastfmapi::AuthConfig;
     use crate::utils::now_local;
@@ -359,6 +358,7 @@ mod tests {
         LastfmApiBuilder::new(auth_config)
             .with_api_host(api_host)
             .build()
+            .expect("building test client")
     }
 
     #[test]

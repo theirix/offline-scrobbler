@@ -61,7 +61,7 @@ pub fn scrobble_album(
     start: Option<Duration>,
 ) -> Result<(), anyhow::Error> {
     let auth_config = load_auth_config()?;
-    let api = LastfmApiBuilder::new(auth_config).build();
+    let api = LastfmApiBuilder::new(auth_config).build()?;
     // When the track scrobbled - subset offset from current time
     let offset = start.map_or(Duration::ZERO, |v| v);
     debug!("Scrobble offset {:?}", offset);
@@ -93,7 +93,7 @@ pub fn scrobble_track(
     start: Option<Duration>,
 ) -> Result<(), anyhow::Error> {
     let auth_config = load_auth_config()?;
-    let api = LastfmApiBuilder::new(auth_config).build();
+    let api = LastfmApiBuilder::new(auth_config).build()?;
     // When the track scrobbled - subset offset from current time
     let offset = start.map_or(Duration::ZERO, |v| v);
     let when = now_local() - offset;
