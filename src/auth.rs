@@ -23,7 +23,7 @@ fn config_file() -> anyhow::Result<PathBuf> {
         .context("cannot detect config dir")?;
     let config_path = proj_dirs.config_dir();
     let config_file = config_path.join("config.toml");
-    std::fs::create_dir_all(config_path)?;
+    fs::create_dir_all(config_path)?;
     info!("Using auth config file {}", config_file.display());
     Ok(config_file.to_path_buf())
 }

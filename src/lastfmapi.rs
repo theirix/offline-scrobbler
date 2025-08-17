@@ -72,7 +72,7 @@ impl LastfmApi {
             );
             return Err(ApiError::Generic("Unsuccessfull request".into()));
         }
-        let resp: serde_json::Value = response.json().unwrap();
+        let resp: Value = response.json().unwrap();
         debug!("Resp {}", resp);
         let token = resp
             .as_object()
@@ -237,7 +237,7 @@ impl LastfmApi {
             error!("Response: {}", response.text().unwrap_or("".to_string()));
             return Err(ApiError::Generic("Unsuccessfull request".into()));
         }
-        let resp: serde_json::Value = response.json().unwrap();
+        let resp: Value = response.json().unwrap();
         debug!("Resp {}", resp);
 
         let jalbum = resp
