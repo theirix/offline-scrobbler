@@ -30,6 +30,8 @@ pub enum ApiError {
     Parse(String),
     #[error("unscrobbled: {0}")]
     Unscrobbled(String),
+    #[error("network error: {0}")]
+    Network(#[from] reqwest::Error),
 }
 
 #[derive(Debug)]
@@ -55,8 +57,7 @@ impl LastfmApi {
             .to_string();
         let client = ClientBuilder::new()
             .retry(retry::for_host(host).max_retries_per_request(5))
-            .build()
-            .map_err(|e| ApiError::Generic(e.to_string()))?;
+            .build()?;
         Ok(Self {
             auth_config,
             client,
@@ -70,12 +71,7 @@ impl LastfmApi {
             api_host = self.api_host,
             key = self.auth_config.api_key
         );
-        let response = self
-            .client
-            .post(url)
-            .body("")
-            .send()
-            .map_err(|e| ApiError::Generic(e.to_string()))?;
+        let response = self.client.post(url).body("").send()?;
 
         if !response.status().is_success() {
             error!(
@@ -124,12 +120,7 @@ impl LastfmApi {
 
         // Make a request
         let url = format!("{}/2.0", self.api_host);
-        let response = self
-            .client
-            .post(url)
-            .form(&post_params)
-            .send()
-            .map_err(|e| ApiError::Generic(e.to_string()))?;
+        let response = self.client.post(url).form(&post_params).send()?;
 
         let success = response.status().is_success();
         let response_text = response.text().unwrap_or(String::new());
@@ -171,12 +162,7 @@ impl LastfmApi {
 
         // Make a request
         let url = format!("{}/2.0", self.api_host);
-        let response = self
-            .client
-            .post(url)
-            .form(&post_params)
-            .send()
-            .map_err(|e| ApiError::Generic(e.to_string()))?;
+        let response = self.client.post(url).form(&post_params).send()?;
 
         let success = response.status().is_success();
         let response_text = response.text().unwrap_or(String::new());
@@ -238,12 +224,7 @@ impl LastfmApi {
             album = urlencoding::encode(&album),
             key = self.auth_config.api_key
         );
-        let response = self
-            .client
-            .post(url)
-            .body("")
-            .send()
-            .map_err(|e| ApiError::Generic(e.to_string()))?;
+        let response = self.client.post(url).body("").send()?;
 
         if !response.status().is_success() {
             error!("Response: {}", response.text().unwrap_or("".to_string()));
