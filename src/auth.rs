@@ -4,7 +4,11 @@ use directories::ProjectDirs;
 use log::info;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::fs::Permissions;
 use std::path::PathBuf;
+
+#[cfg(target_family = "unix")]
+use std::os::unix::fs::PermissionsExt;
 
 #[derive(Serialize, Deserialize)]
 pub struct AuthConfig {
@@ -36,11 +40,14 @@ fn save_auth_config(
     };
     let serialized: String = toml::to_string(&config)?;
 
-    fs::write(
-        config_file().context("cannot find config file")?,
-        serialized,
-    )
-    .context("cannot write to config file")
+    let path = config_file().context("cannot find config file")?;
+    fs::write(&path, serialized).context("cannot write to config file")?;
+    // Set permissions only on Unix
+    if cfg!(unix) {
+        fs::set_permissions(&path, Permissions::from_mode(0o600))
+            .context("cannot secure config file")?;
+    }
+    Ok(())
 }
 
 pub fn load_auth_config() -> anyhow::Result<AuthConfig> {
