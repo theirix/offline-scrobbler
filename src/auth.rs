@@ -13,14 +13,10 @@ pub struct AuthConfig {
     pub session_key: String,
 }
 
-//pub fn is_authenticated() -> anyhow::Result<bool> {
-//Ok(config_file()?.is_file())
-//}
-
 /// Provide path to auth config file
 fn config_file() -> anyhow::Result<PathBuf> {
     let proj_dirs = ProjectDirs::from("ru", "omniverse", "offline-scrobbler")
-        .context("cannot detect config dir")?;
+        .context("cannot find config dir")?;
     let config_path = proj_dirs.config_dir();
     let config_file = config_path.join("config.toml");
     fs::create_dir_all(config_path)?;
@@ -43,13 +39,16 @@ fn save_auth_config(
     fs::write(
         config_file().context("cannot find config file")?,
         serialized,
-    )?;
-    Ok(())
+    )
+    .context("cannot write to config file")
 }
 
 pub fn load_auth_config() -> anyhow::Result<AuthConfig> {
-    let serialized = fs::read_to_string(config_file().context("cannot find config file")?)?;
-    let config: AuthConfig = toml::from_str(&serialized)?;
+    let suffix = "config file with last.fm authentication. Rerun `offline-scrobbler auth` as show in documentation";
+    let serialized =
+        fs::read_to_string(config_file().context("cannot find ".to_owned() + suffix)?)?;
+    let config: AuthConfig =
+        toml::from_str(&serialized).context("cannot parse entries from".to_owned() + suffix)?;
 
     Ok(config)
 }
@@ -80,7 +79,7 @@ pub fn authenticate(api_key: String, secret_key: String) -> anyhow::Result<()> {
     let token = api
         .get_session_token(request_token)
         .context("cannot get session token")?;
-    info!("Got token {}", &token);
+    info!("Got token {}...", &token[0..5]);
     save_auth_config(api_key, secret_key, token)?;
     Ok(())
 }
